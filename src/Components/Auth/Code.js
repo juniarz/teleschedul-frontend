@@ -69,7 +69,8 @@ class Code extends React.Component {
             first_name: 'A',
             last_name: 'B'
         })
-            .then(result => {})
+            .then(result => {
+            })
             .catch(error => {
                 let errorString = null;
                 if (error && error['@type'] === 'error' && error.message) {

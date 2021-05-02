@@ -45,7 +45,7 @@ class ChatStore extends EventEmitter {
                     });
                 }
             }
-        } catch {}
+        } catch { }
 
         this.clientData = clientData;
     };
@@ -413,6 +413,10 @@ class ChatStore extends EventEmitter {
                 break;
             }
             case 'clientUpdateContacts': {
+                this.emitUpdate(update);
+                break;
+            }
+            case 'clientUpdateScheduler': {
                 this.emitUpdate(update);
                 break;
             }

@@ -29,6 +29,7 @@ import InstantViewStore from '../Stores/InstantViewStore';
 import UserStore from '../Stores/UserStore';
 import PlayerStore from '../Stores/PlayerStore';
 import TdLibController from '../Controllers/TdLibController';
+import { Switch, Route } from 'react-router-dom';
 import '../TelegramApp.css';
 
 class MainPage extends React.Component {
@@ -217,18 +218,23 @@ class MainPage extends React.Component {
                         'page-small': isSmallWidth,
                         'page-third-column': isChatDetailsVisible
                     })}>
-                    <Dialogs />
-                    <DialogDetails ref={this.dialogDetailsRef} />
+                    <Switch>
+                        <Route>
+                            <Dialogs />
+                            <DialogDetails ref={this.dialogDetailsRef} />
+                        </Route>
+                    </Switch>
+
                     {isChatDetailsVisible && <ChatInfo />}
                 </div>
-                <Actions/>
+                <Actions />
                 {Boolean(instantViewContent) && <InstantViewer {...instantViewContent} />}
                 {Boolean(mediaViewerContent) && <MediaViewer {...mediaViewerContent} />}
                 {Boolean(profileMediaViewerContent) && <ProfileMediaViewer {...profileMediaViewerContent} />}
                 {Boolean(forwardInfo) && <ForwardDialog {...forwardInfo} />}
-                {Boolean(videoInfo) && <PipPlayer {...videoInfo}/>}
-                {Boolean(groupCallId) && <GroupCall groupCallId={groupCallId}/>}
-                {Boolean(callId) && <Call callId={callId}/>}
+                {Boolean(videoInfo) && <PipPlayer {...videoInfo} />}
+                {Boolean(groupCallId) && <GroupCall groupCallId={groupCallId} />}
+                {Boolean(callId) && <Call callId={callId} />}
             </>
         );
     }

@@ -32,6 +32,7 @@ import FileStore from '../../Stores/FileStore';
 import FilterStore from '../../Stores/FilterStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './Dialogs.css';
+import Scheduler from './Scheduler/Scheduler';
 
 const defaultTimeout = {
     enter: duration.enteringScreen,
@@ -58,6 +59,7 @@ class Dialogs extends Component {
             openSearch: false,
             openArchive: false,
             openContacts: false,
+            openScheduler: false,
             openSettings: false,
             openNewGroup: false,
             openNewChannel: false,
@@ -76,6 +78,7 @@ class Dialogs extends Component {
             archiveItems,
             openSearch,
             openArchive,
+            openScheduler,
             openSettings,
             openContacts,
             openNewGroup,
@@ -105,6 +108,10 @@ class Dialogs extends Component {
         }
 
         if (nextState.openArchive !== openArchive) {
+            return true;
+        }
+
+        if (nextState.openScheduler !== openScheduler) {
             return true;
         }
 
@@ -144,6 +151,7 @@ class Dialogs extends Component {
         ChatStore.on('updateChatDraftMessage', this.onUpdateChatOrder);
         ChatStore.on('updateChatLastMessage', this.onUpdateChatOrder);
         ChatStore.on('updateChatPosition', this.onUpdateChatOrder);
+        ChatStore.on('clientUpdateScheduler', this.onClientUpdateScheduler);
         ChatStore.on('clientUpdateSettings', this.onClientUpdateSettings);
         ChatStore.on('clientUpdateArchive', this.onClientUpdateArchive);
         ChatStore.on('clientUpdateContacts', this.onClientUpdateContacts);
@@ -159,6 +167,7 @@ class Dialogs extends Component {
         ChatStore.off('updateChatDraftMessage', this.onUpdateChatOrder);
         ChatStore.off('updateChatLastMessage', this.onUpdateChatOrder);
         ChatStore.off('updateChatPosition', this.onUpdateChatOrder);
+        ChatStore.off('clientUpdateScheduler', this.onClientUpdateScheduler);
         ChatStore.off('clientUpdateSettings', this.onClientUpdateSettings);
         ChatStore.off('clientUpdateArchive', this.onClientUpdateArchive);
         ChatStore.off('clientUpdateContacts', this.onClientUpdateContacts);
@@ -176,19 +185,20 @@ class Dialogs extends Component {
 
         if (!isSmallWidth) return;
 
-        const { openSettings, openContacts, openSearch, openNewGroup, openNewChannel } = this.state;
-        if (openSettings || openContacts || openSearch || openNewGroup || openNewChannel) {
+        const { openScheduler, openSettings, openContacts, openSearch, openNewGroup, openNewChannel } = this.state;
+        if (openScheduler || openSettings || openContacts || openSearch || openNewGroup || openNewChannel) {
             this.setState({
-                    openContacts: false,
-                    openSettings: false,
-                    openSearch: false,
-                    openNewGroup: false,
-                    openNewChannel: false,
-                    timeout: 0
-                }, () => {
-                    this.setState({
-                        timeout: defaultTimeout
-                    });
+                openContacts: false,
+                openScheduler: false,
+                openSettings: false,
+                openSearch: false,
+                openNewGroup: false,
+                openNewChannel: false,
+                timeout: 0
+            }, () => {
+                this.setState({
+                    timeout: defaultTimeout
+                });
             });
         }
     };
@@ -280,6 +290,16 @@ class Dialogs extends Component {
         this.setState({ openContacts: open });
     };
 
+    onClientUpdateScheduler = update => {
+        const { isSmallWidth } = AppStore;
+        if (isSmallWidth) return;
+
+        const { open } = update;
+
+        console.log("PEW")
+        this.setState({ openScheduler: open });
+    }
+
     onClientUpdateSettings = update => {
         const { isSmallWidth } = AppStore;
         if (isSmallWidth) return;
@@ -336,6 +356,7 @@ class Dialogs extends Component {
                 searchText: null,
                 openArchive: false,
                 openContacts: false,
+                openScheduler: false,
                 openSettings: false,
                 openNewGroup: false,
                 openNewChannel: false,
@@ -412,6 +433,10 @@ class Dialogs extends Component {
         this.setState({ openContacts: false });
     };
 
+    handleCloseScheduler = () => {
+        this.setState({ openScheduler: false });
+    };
+
     handleCloseSettings = () => {
         this.setState({ openSettings: false });
     };
@@ -431,6 +456,7 @@ class Dialogs extends Component {
             archiveTitle,
             archiveItems,
             meChatId,
+            openScheduler,
             openSettings,
             openContacts,
             openArchive,
@@ -459,7 +485,7 @@ class Dialogs extends Component {
                         />
                         <div className='dialogs-content'>
                             <div className='dialogs-content-internal'>
-                                <Filters/>
+                                <Filters />
                                 {/*<div className='sidebar-page-top-divider' style={{ zIndex: 1 }}/>*/}
                                 <DialogsList
                                     type='chatListMain'
@@ -497,6 +523,10 @@ class Dialogs extends Component {
                         <Contacts />
                     </SidebarPage>
 
+                    <SidebarPage open={openScheduler} timeout={timeout} onClose={this.handleCloseScheduler}>
+                        <Scheduler />
+                    </SidebarPage>
+
                     <SidebarPage open={openSettings} timeout={timeout} onClose={this.handleCloseSettings}>
                         <Settings chatId={meChatId} />
                     </SidebarPage>
@@ -509,7 +539,8 @@ class Dialogs extends Component {
                         <NewChannel />
                     </SidebarPage>
 
-                    <SidebarDialog/>
+
+                    <SidebarDialog />
                 </div>
             </>
         );

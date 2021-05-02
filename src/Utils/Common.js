@@ -183,7 +183,7 @@ function getSize(sizes, dimension) {
     if (dimension === 0) return null;
 
     let iSize = sizes.find(x => x.type === 'i');
-    if (iSize){
+    if (iSize) {
         return iSize;
     }
 
@@ -273,13 +273,13 @@ function throttle(func, wait, options) {
     var timeout = null;
     var previous = 0;
     if (!options) options = {};
-    var later = function() {
+    var later = function () {
         previous = options.leading === false ? 0 : Date.now();
         timeout = null;
         result = func.apply(context, args);
         if (!timeout) context = args = null;
     };
-    return function() {
+    return function () {
         var now = Date.now();
         if (!previous && options.leading === false) previous = now;
         var remaining = wait - (now - previous);
@@ -574,10 +574,10 @@ async function readImageSize(file) {
         let useBlob = false;
         const reader = new FileReader();
 
-        reader.addEventListener('load', function() {
+        reader.addEventListener('load', function () {
             try {
                 const image = new Image();
-                image.addEventListener('load', function() {
+                image.addEventListener('load', function () {
                     const { width, height } = image;
                     if (useBlob) {
                         window.URL.revokeObjectURL(image.src);
@@ -637,7 +637,7 @@ function arrayBufferToBase64(buffer) {
 function isAuthorizationReady(state) {
     if (!state) return false;
 
-    return state['@type'] === 'authorizationStateReady';
+    return state['@type'] === 'authorizationStateReady' || state['@type'] === 'parseUserReady';
 }
 
 function between(item, first, last, inclusive = false) {
@@ -667,7 +667,7 @@ function getDurationString(secondsTotal, duration, reverse) {
         seconds = '0' + seconds;
     }
 
-    return (reverse ? '-': '') + (hours > 0 ? hours + ':' : '') + minutes + ':' + seconds;
+    return (reverse ? '-' : '') + (hours > 0 ? hours + ':' : '') + minutes + ':' + seconds;
 }
 
 export function getRandomInt(min, max) {
@@ -705,7 +705,7 @@ export function albumHistoryEquals(first, second) {
 
 function insertByOrder(array, element, comparator) {
     let i = 0;
-    for (; i < array.length && comparator(array[i], element) < 0; i++) {}
+    for (; i < array.length && comparator(array[i], element) < 0; i++) { }
 
     return [...array.slice(0, i), element, ...array.slice(i)];
 }

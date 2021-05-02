@@ -30,7 +30,7 @@ module.exports = override(
             globalObject: 'this',
         },
     }),
-    config => addWebpackBundleAnalyzer(config,{
+    config => addWebpackBundleAnalyzer(config, {
         // analyzerMode: 'static',
         // reportFilename: 'report.html',
         openAnalyzer: true,

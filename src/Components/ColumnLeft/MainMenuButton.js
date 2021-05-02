@@ -32,6 +32,7 @@ import CacheStore from '../../Stores/CacheStore';
 import UserStore from '../../Stores/UserStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './MainMenuButton.css';
+import ScheduleIcon from '../../Assets/Icons/Schedule';
 
 class MainMenuButton extends React.Component {
     constructor(props) {
@@ -79,6 +80,15 @@ class MainMenuButton extends React.Component {
         this.handleMenuClose();
 
         //await update();
+    };
+
+    handleUpdateScheduler = event => {
+        this.handleMenuClose();
+
+        TdLibController.clientUpdate({
+            '@type': 'clientUpdateScheduler',
+            open: true
+        });
     };
 
     handleNewChannel = event => {
@@ -182,6 +192,12 @@ class MainMenuButton extends React.Component {
                         vertical: 'bottom',
                         horizontal: 'left'
                     }}>
+                    <MenuItem onClick={this.handleUpdateScheduler}>
+                        <ListItemIcon>
+                            <ScheduleIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={t('Scheduler')} />
+                    </MenuItem>
                     <MenuItem onClick={this.handleNewChannel}>
                         <ListItemIcon>
                             <ChannelIcon />
@@ -236,8 +252,8 @@ class MainMenuButton extends React.Component {
             ) : null;
 
         const closeIcon = popup
-            ? <CloseIcon/>
-            : <ArrowBackIcon/>;
+            ? <CloseIcon />
+            : <ArrowBackIcon />;
 
         return (
             <>
@@ -247,7 +263,7 @@ class MainMenuButton extends React.Component {
                     className='header-left-button main-menu-button'
                     aria-label='Menu'
                     onClick={showClose ? onClose : this.handleMenuOpen}>
-                    { timeout
+                    {timeout
                         ? (<SpeedDialIcon open={showClose} openIcon={<ArrowBackIcon />} icon={<MenuIcon />} />)
                         : (<>{showClose ? closeIcon : <MenuIcon />}</>)
                     }

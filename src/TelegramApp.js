@@ -37,7 +37,16 @@ import AuthorizationStore from './Stores/AuthorizationStore';
 import FilterStore from './Stores/FilterStore';
 import MessageStore from './Stores/MessageStore';
 import TdLibController from './Controllers/TdLibController';
+import { BrowserRouter as Router } from 'react-router-dom';
 import './TelegramApp.css';
+
+import Parse from 'parse';
+import { initializeParse } from '@parse/react';
+initializeParse(
+    process.env.REACT_APP_PARSE_URL,
+    process.env.REACT_APP_APPLICATION_ID,
+    process.env.REACT_APP_JAVASCRIPT_KEY
+);
 
 // import MainPage from './Components/MainPage';
 const MainPage = React.lazy(() => import('./Components/MainPage'));
@@ -233,7 +242,7 @@ class TelegramApp extends Component {
         this.setState({ fatalError: true });
     };
 
-    onUpdateAuthorizationState = update => {
+    onUpdateAuthorizationState = async (update) => {
         const { authorization_state: authorizationState } = update;
         let { prevAuthorizationState } = this.state;
 
@@ -256,6 +265,28 @@ class TelegramApp extends Component {
             name: 'online',
             value: { '@type': 'optionValueBoolean', value: true }
         });
+
+        if (authorizationState['@type'] === "authorizationStateClosed") {
+            await Parse.User.logOut();
+        }
+
+        if (authorizationState['@type'] === "authorizationStateReady") {
+            const userId = UserStore.getMyId();
+
+            const user = await Parse.User.logInWith('TelegramAuth', {
+                authData: {
+                    id: userId
+                }
+            });
+
+            const _user = UserStore.get(userId);
+            if (_user) {
+                user.set("phone", _user.phone_number);
+                await user.save();
+            }
+
+            AppStore.emit("updateAuthorizationState", { authorization_state: { '@type': "parseUserReady" }, user });
+        }
     };
 
     onClientUpdateAppInactive = update => {
@@ -346,7 +377,7 @@ class TelegramApp extends Component {
                 case 'authorizationStateWaitPassword':
                 case 'authorizationStateWaitPhoneNumber':
                 case 'authorizationStateWaitTdlib':
-                    page = <AuthForm authorizationState={state} onChangePhone={this.handleChangePhone} onRequestQRCode={this.handleRequestQRCode}/>;
+                    page = <AuthForm authorizationState={state} onChangePhone={this.handleChangePhone} onRequestQRCode={this.handleRequestQRCode} />;
                     break;
                 case 'authorizationStateWaitEncryptionKey':
                 case 'authorizationStateWaitTdlibParameters': {
@@ -361,9 +392,11 @@ class TelegramApp extends Component {
                 className={theme.palette.type === 'dark' ? 'dark' : 'light'}
                 onDragOver={this.handleDragOver}
                 onDrop={this.handleDrop}
-                // onKeyDown={KeyboardManager.handleKeyDown} tabIndex={-1}
+            // onKeyDown={KeyboardManager.handleKeyDown} tabIndex={-1}
             >
-                {page}
+                <Router>
+                    {page}
+                </Router>
                 <Dialog
                     manager={modalManager}
                     transitionDuration={0}
@@ -395,7 +428,7 @@ window.hasFocus = true;
 
 // set offline on page lost focus
 // console.log('[ns] window.onblur attach');
-window.onblur = function() {
+window.onblur = function () {
     window.hasFocus = false;
 
     TdLibController.clientUpdate({
@@ -406,7 +439,7 @@ window.onblur = function() {
 
 // set online on page get focus
 // console.log('[ns] window.onfocus attach');
-window.onfocus = function() {
+window.onfocus = function () {
     window.hasFocus = true;
 
     TdLibController.clientUpdate({
@@ -417,7 +450,7 @@ window.onfocus = function() {
 
 // disable back navigation
 window.history.pushState(null, null, window.location.href);
-window.onpopstate = function() {
+window.onpopstate = function () {
     window.history.go(1);
 };
 
@@ -433,8 +466,8 @@ async function unlockAudio() {
 }
 
 // if (isSafari()) {
-    document.body.addEventListener('click', unlockAudio);
-    document.body.addEventListener('touchstart', unlockAudio);
+document.body.addEventListener('click', unlockAudio);
+document.body.addEventListener('touchstart', unlockAudio);
 // }
 
 const enhance = compose(
