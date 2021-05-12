@@ -13,15 +13,38 @@ import { IconButton } from '@material-ui/core';
 import ArrowBackIcon from '../../../Assets/Icons/Back';
 import CloseIcon from '../../../Assets/Icons/Close';
 import TdLibController from '../../../Controllers/TdLibController';
+import ScheduleList from './ScheduleList';
+import FileStore from '../../../Stores/FileStore';
+import CacheStore from '../../../Stores/CacheStore';
+import FilterStore from '../../../Stores/FilterStore';
+import { loadChatsContent } from '../../../Utils/File';
 
 class Scheduler extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.dialogListRef = React.createRef();
+
+        this.state = {
+            cache: null,
+        };
+
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        const {
+            cache
+        } = this.state;
+
+        if (nextState.cache !== cache) {
+            return true;
+        }
+
+        return false;
     }
 
     componentDidMount() {
+        this.loadCache();
     }
 
     componentWillUnmount() {
@@ -34,11 +57,36 @@ class Scheduler extends React.Component {
         });
     };
 
+    async loadCache() {
+        const cache = (await CacheStore.load()) || {};
+
+        const { chats } = cache;
+
+        FilterStore.filters = FilterStore.filters || CacheStore.filters;
+        this.setState({
+            cache
+        });
+
+        this.loadChatContents((chats || []).map(x => x.id));
+
+        TdLibController.clientUpdate({
+            '@type': 'clientUpdateCacheLoaded'
+        });
+    }
+
+    loadChatContents(chatIds) {
+        const store = FileStore.getStore();
+        loadChatsContent(store, chatIds);
+    }
+
     render() {
         const {
+            cache,
             popup,
             t
         } = this.props;
+
+        const mainCacheItems = cache && cache.chats ? cache.chats : null;
 
         return (
             <>
@@ -49,6 +97,13 @@ class Scheduler extends React.Component {
                     <div className='header-status grow cursor-pointer'>
                         <span className='header-status-content'>{t('Schedule')}</span>
                     </div>
+                </div>
+                <div className='sidebar-page-content settings-main-content'>
+                    <ScheduleList
+                        type='chatListMain'
+                        ref={this.dialogListRef}
+                        cacheItems={mainCacheItems}
+                    />
                 </div>
             </>
         );

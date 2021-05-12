@@ -37,7 +37,6 @@ import AuthorizationStore from './Stores/AuthorizationStore';
 import FilterStore from './Stores/FilterStore';
 import MessageStore from './Stores/MessageStore';
 import TdLibController from './Controllers/TdLibController';
-import { BrowserRouter as Router } from 'react-router-dom';
 import './TelegramApp.css';
 
 import Parse from 'parse';
@@ -394,9 +393,7 @@ class TelegramApp extends Component {
                 onDrop={this.handleDrop}
             // onKeyDown={KeyboardManager.handleKeyDown} tabIndex={-1}
             >
-                <Router>
-                    {page}
-                </Router>
+                {page}
                 <Dialog
                     manager={modalManager}
                     transitionDuration={0}

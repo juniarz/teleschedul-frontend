@@ -29,7 +29,6 @@ import InstantViewStore from '../Stores/InstantViewStore';
 import UserStore from '../Stores/UserStore';
 import PlayerStore from '../Stores/PlayerStore';
 import TdLibController from '../Controllers/TdLibController';
-import { Switch, Route } from 'react-router-dom';
 import '../TelegramApp.css';
 
 class MainPage extends React.Component {
@@ -218,13 +217,8 @@ class MainPage extends React.Component {
                         'page-small': isSmallWidth,
                         'page-third-column': isChatDetailsVisible
                     })}>
-                    <Switch>
-                        <Route>
-                            <Dialogs />
-                            <DialogDetails ref={this.dialogDetailsRef} />
-                        </Route>
-                    </Switch>
-
+                    <Dialogs />
+                    <DialogDetails ref={this.dialogDetailsRef} />
                     {isChatDetailsVisible && <ChatInfo />}
                 </div>
                 <Actions />

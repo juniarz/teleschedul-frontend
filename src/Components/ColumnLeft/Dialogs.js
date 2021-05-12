@@ -296,7 +296,6 @@ class Dialogs extends Component {
 
         const { open } = update;
 
-        console.log("PEW")
         this.setState({ openScheduler: open });
     }
 
